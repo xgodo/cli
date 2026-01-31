@@ -15,14 +15,16 @@ import {
   uninstallCompletions,
 } from "./lib/completions";
 
-// Handle tab completion before anything else
-handleCompletion().then(() => {
-  // If completion was handled, the process will exit
-  // Otherwise, continue with normal CLI execution
-  runCli();
-}).catch(() => {
-  runCli();
-});
+// Handle tab completion first (tabtab checks env vars)
+handleCompletion()
+  .then((handled) => {
+    if (!handled) {
+      runCli();
+    }
+  })
+  .catch(() => {
+    runCli();
+  });
 
 function runCli(): void {
   const program = new Command();
@@ -114,10 +116,8 @@ function runCli(): void {
     .action(async () => {
       try {
         await installCompletions();
-        console.log("Shell completions installed successfully!");
-        console.log("Please restart your shell or run: source ~/.bashrc (or ~/.zshrc)");
-      } catch (err) {
-        console.error("Failed to install completions:", err);
+      } catch (err: any) {
+        console.error("Failed to install completions:", err.message);
         process.exit(1);
       }
     });
@@ -128,9 +128,8 @@ function runCli(): void {
     .action(async () => {
       try {
         await uninstallCompletions();
-        console.log("Shell completions uninstalled successfully!");
-      } catch (err) {
-        console.error("Failed to uninstall completions:", err);
+      } catch (err: any) {
+        console.error("Failed to uninstall completions:", err.message);
         process.exit(1);
       }
     });
