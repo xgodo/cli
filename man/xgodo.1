@@ -44,6 +44,17 @@ List available templates.
 .TP
 .B project template apply\fR [\fItemplate-id\fR]
 Apply a template to the current project.
+.SS Arguments Management (xgodo project arguments | xgodo p args)
+.TP
+.B project arguments list\fR, \fBp args ls
+List automation parameters and job variables with their properties.
+If run inside a project directory, uses the current project. Otherwise,
+shows an interactive selection prompt.
+.TP
+.B project arguments edit\fR, \fBp args edit
+Interactively edit automation parameters and job variables. Allows adding,
+editing, deleting, and reordering fields. Supports all field types including
+nested objects and multi-dimensional arrays.
 .SS Shell Completions
 .TP
 .B completion install
@@ -97,6 +108,16 @@ xgodo project template list
 xgodo p t ls
 xgodo project template apply                      # Interactive selection
 xgodo project template apply 507f1f77bcf86cd799439022
+.fi
+.RE
+.PP
+Manage automation arguments:
+.RS
+.nf
+xgodo project arguments list                      # List arguments (from project dir)
+xgodo p args ls                                   # Interactive project selection if not in project dir
+xgodo project arguments edit                      # Edit arguments interactively
+xgodo p args edit
 .fi
 .RE
 .SH FILES

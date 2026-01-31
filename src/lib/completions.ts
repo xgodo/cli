@@ -20,6 +20,13 @@ const COMMANDS = {
     { name: "commit", description: "Commit changes" },
     { name: "template", description: "Manage templates" },
     { name: "t", description: "Manage templates (alias)" },
+    { name: "arguments", description: "Manage arguments" },
+    { name: "args", description: "Manage arguments (alias)" },
+  ],
+  arguments: [
+    { name: "list", description: "List automation parameters and job variables" },
+    { name: "ls", description: "List automation parameters and job variables (alias)" },
+    { name: "edit", description: "Edit arguments interactively" },
   ],
   template: [
     { name: "list", description: "List available templates" },
@@ -160,6 +167,15 @@ export async function handleCompletion(): Promise<boolean> {
           return true; // Don't complete message
         }
         tabtab.log(OPTIONS.commit);
+        return true;
+      }
+
+      // Arguments subcommands
+      if (second === "arguments" || second === "args") {
+        if (args.length === 2 || (args.length === 3 && !line.endsWith(" "))) {
+          tabtab.log(COMMANDS.arguments);
+          return true;
+        }
         return true;
       }
 

@@ -54,3 +54,53 @@ export interface ApiResponse<T = unknown> {
   message?: string;
   [key: string]: T | boolean | string | undefined;
 }
+
+/**
+ * Field schema for input validation
+ * Supports recursive nesting for n-dimensional arrays via the `items` property
+ */
+export interface IFieldSchema {
+  name: string;
+  type: "string" | "number" | "boolean" | "array" | "object" | "any";
+  required?: boolean;
+  description?: string;
+  defaultValue?: any;
+  // String validations
+  minLength?: number;
+  maxLength?: number;
+  pattern?: string;
+  enum?: (string | number)[];
+  // Number validations
+  min?: number;
+  max?: number;
+  integer?: boolean;
+  // Array validations
+  minItems?: number;
+  maxItems?: number;
+  // Recursive item schema for arrays (supports n-dimensional arrays)
+  items?: IFieldSchema;
+  // Object validations (nested fields) - also used for array of objects
+  properties?: IFieldSchema[];
+}
+
+/**
+ * Input schema for automation parameters or job variables
+ */
+export interface IInputSchema {
+  fields: IFieldSchema[];
+}
+
+/**
+ * Project details including input schemas
+ */
+export interface ProjectDetails {
+  id: string;
+  name: string;
+  description: string;
+  automation_parameters_schema: IInputSchema | null;
+  job_variables_schema: IInputSchema | null;
+  min_android_version: number | null;
+  min_app_version: number | null;
+  is_owner: boolean;
+  is_template: boolean;
+}

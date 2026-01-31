@@ -7,6 +7,8 @@ import {
   ProjectFile,
   SyncResult,
   Template,
+  ProjectDetails,
+  IInputSchema,
 } from "./types";
 
 /**
@@ -31,7 +33,7 @@ export function getApiKey(): string | null {
 async function apiRequest<T>(
   endpoint: string,
   options: {
-    method?: "GET" | "POST" | "PUT" | "DELETE";
+    method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
     body?: unknown;
     apiKey?: string;
     apiUrl?: string;
@@ -227,4 +229,40 @@ export async function applyTemplate(
     body: { template_id: templateId },
   });
   return { files_copied: data.files_copied, files: data.files };
+}
+
+/**
+ * Get project details including input schemas
+ */
+export async function getProjectDetails(projectId: string): Promise<ProjectDetails> {
+  const data = await apiRequest<{ project: ProjectDetails }>(
+    `/v2/automation-project/${projectId}`
+  );
+  return data.project;
+}
+
+/**
+ * Update project options (input schemas)
+ */
+export async function updateProjectOptions(
+  projectId: string,
+  options: {
+    automation_parameters_schema?: IInputSchema | null;
+    job_variables_schema?: IInputSchema | null;
+  }
+): Promise<{
+  automation_parameters_schema: IInputSchema | null;
+  job_variables_schema: IInputSchema | null;
+}> {
+  const data = await apiRequest<{
+    automation_parameters_schema: IInputSchema | null;
+    job_variables_schema: IInputSchema | null;
+  }>(`/v2/automation-project/${projectId}/options`, {
+    method: "PATCH",
+    body: options,
+  });
+  return {
+    automation_parameters_schema: data.automation_parameters_schema,
+    job_variables_schema: data.job_variables_schema,
+  };
 }

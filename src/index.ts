@@ -9,6 +9,7 @@ import { clone } from "./commands/clone";
 import { sync } from "./commands/sync";
 import { commit } from "./commands/commit";
 import { templateList, templateApply } from "./commands/template";
+import { argumentsList, argumentsEdit } from "./commands/arguments";
 import {
   handleCompletion,
   installCompletions,
@@ -32,7 +33,7 @@ function runCli(): void {
   program
     .name("xgodo")
     .description("CLI tool for Xgodo platform")
-    .version("1.1.0");
+    .version("1.2.0");
 
   // Login command
   program
@@ -104,6 +105,23 @@ function runCli(): void {
     .command("apply [template-id]")
     .description("Apply a template to the current project")
     .action(templateApply);
+
+  // Arguments subcommands under project
+  const argsCmd = projectCmd
+    .command("arguments")
+    .alias("args")
+    .description("Manage automation parameters and job variables");
+
+  argsCmd
+    .command("list")
+    .alias("ls")
+    .description("List automation parameters and job variables")
+    .action(argumentsList);
+
+  argsCmd
+    .command("edit")
+    .description("Interactively edit automation parameters and job variables")
+    .action(argumentsEdit);
 
   // ==================== Completion commands ====================
   const completionCmd = program
