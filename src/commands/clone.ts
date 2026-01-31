@@ -8,6 +8,7 @@ import {
   getNodeTypes,
   getBootstrapTypes,
   getApiUrl,
+  listProjects,
 } from "../lib/api";
 import {
   isLoggedIn,
@@ -22,13 +23,14 @@ import {
 } from "../lib/project";
 import { LocalHashes } from "../lib/types";
 import * as logger from "../utils/logger";
+import { promptSelectProject } from "../utils/prompts";
 
 interface CloneOptions {
   path?: string;
 }
 
 export async function clone(
-  projectId: string,
+  projectId: string | undefined,
   options: CloneOptions
 ): Promise<void> {
   if (!isLoggedIn()) {
@@ -36,11 +38,37 @@ export async function clone(
     process.exit(1);
   }
 
+  let selectedProjectId = projectId;
+
+  // If no project ID provided, show interactive selection
+  if (!selectedProjectId) {
+    const spinner = ora("Fetching projects...").start();
+    try {
+      const projects = await listProjects();
+      spinner.stop();
+
+      if (projects.length === 0) {
+        logger.info("No projects available");
+        return;
+      }
+
+      selectedProjectId = await promptSelectProject(projects);
+    } catch (err: unknown) {
+      spinner.stop();
+      if (err instanceof Error) {
+        logger.error(err.message);
+      } else {
+        logger.error("Failed to list projects");
+      }
+      process.exit(1);
+    }
+  }
+
   const spinner = ora("Fetching project info...").start();
 
   try {
     // Get project details
-    const project = await getProject(projectId);
+    const project = await getProject(selectedProjectId);
     spinner.text = "Fetching project files...";
 
     // Determine target directory
@@ -60,14 +88,14 @@ export async function clone(
     fs.mkdirSync(targetDir, { recursive: true });
 
     // Get all files
-    const files = await getProjectFiles(projectId);
+    const files = await getProjectFiles(selectedProjectId);
     spinner.text = `Downloading ${files.length} files...`;
 
     // Download each file
     const hashes: LocalHashes = {};
     for (const file of files) {
       try {
-        const content = await getProjectFile(projectId, file.path);
+        const content = await getProjectFile(selectedProjectId, file.path);
         const filePath = path.join(targetDir, file.path);
         const fileDir = path.dirname(filePath);
 
@@ -104,7 +132,7 @@ export async function clone(
     // Save project info
     saveLocalProject(
       {
-        id: projectId,
+        id: selectedProjectId,
         name: project.name,
         apiUrl: getApiUrl(),
         lastSync: new Date().toISOString(),

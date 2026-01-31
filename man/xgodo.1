@@ -25,9 +25,10 @@ Display the currently logged-in user's name and email.
 .B project list\fR, \fBproject ls\fR, \fBp ls
 List all automation projects you have access to (owner or editor).
 .TP
-.B project clone \fIproject-id\fR [\fB-p\fR \fIpath\fR]
-Clone an automation project to a local directory. If no path is specified,
-creates a directory with the normalized project name.
+.B project clone\fR [\fIproject-id\fR] [\fB-p\fR \fIpath\fR]
+Clone an automation project to a local directory. If no project ID is specified,
+shows an interactive selection prompt. If no path is specified, creates a
+directory with the normalized project name.
 .TP
 .B project sync
 Synchronize local changes with the server. Uploads modified files and
@@ -73,6 +74,7 @@ List and clone a project:
 .nf
 xgodo project list
 xgodo p ls
+xgodo project clone                               # Interactive selection
 xgodo project clone 507f1f77bcf86cd799439011
 xgodo p clone 507f1f77bcf86cd799439011 -p ./my-project
 .fi
@@ -93,6 +95,7 @@ Work with templates:
 .nf
 xgodo project template list
 xgodo p t ls
+xgodo project template apply                      # Interactive selection
 xgodo project template apply 507f1f77bcf86cd799439022
 .fi
 .RE

@@ -69,7 +69,7 @@ function runCli(): void {
 
   // Clone project
   projectCmd
-    .command("clone <project-id>")
+    .command("clone [project-id]")
     .description("Clone an automation project to local directory")
     .option("-p, --path <path>", "Target directory (default: ./<project-name>)")
     .action(clone);
