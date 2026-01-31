@@ -11,6 +11,13 @@ import * as logger from "../utils/logger";
 import { promptSelectProject } from "../utils/prompts";
 
 /**
+ * Deep clone a field schema (to avoid reference issues when comparing)
+ */
+function deepCloneFields(fields: IFieldSchema[]): IFieldSchema[] {
+  return JSON.parse(JSON.stringify(fields));
+}
+
+/**
  * Get the type string representation for a field (e.g., "string[][]")
  */
 function getTypeString(field: IFieldSchema): string {
@@ -961,11 +968,19 @@ export async function argumentsEdit(): Promise<void> {
   logger.log(`\nEditing arguments for: ${details.name}`);
   logger.dim(`ID: ${details.id}\n`);
 
-  let automationParams = details.automation_parameters_schema?.fields || [];
-  let jobVars = details.job_variables_schema?.fields || [];
-  let hasChanges = false;
+  // Deep clone the original values to properly detect changes
+  const originalParams = JSON.stringify(details.automation_parameters_schema?.fields || []);
+  const originalVars = JSON.stringify(details.job_variables_schema?.fields || []);
+
+  let automationParams = deepCloneFields(details.automation_parameters_schema?.fields || []);
+  let jobVars = deepCloneFields(details.job_variables_schema?.fields || []);
 
   while (true) {
+    // Check for changes by comparing with original
+    const hasChanges =
+      JSON.stringify(automationParams) !== originalParams ||
+      JSON.stringify(jobVars) !== originalVars;
+
     const { section } = await inquirer.prompt([
       {
         type: "list",
@@ -981,24 +996,16 @@ export async function argumentsEdit(): Promise<void> {
             value: "vars",
           },
           { name: "View current configuration", value: "view" },
-          { name: "Save and exit", value: "save" },
+          { name: hasChanges ? "Save and exit" : "Save and exit (no changes)", value: "save" },
           { name: "Exit without saving", value: "cancel" },
         ],
       },
     ]);
 
     if (section === "params") {
-      const newFields = await editFieldsLoop(automationParams);
-      if (JSON.stringify(newFields) !== JSON.stringify(automationParams)) {
-        automationParams = newFields;
-        hasChanges = true;
-      }
+      automationParams = await editFieldsLoop(automationParams);
     } else if (section === "vars") {
-      const newFields = await editFieldsLoop(jobVars);
-      if (JSON.stringify(newFields) !== JSON.stringify(jobVars)) {
-        jobVars = newFields;
-        hasChanges = true;
-      }
+      jobVars = await editFieldsLoop(jobVars);
     } else if (section === "view") {
       displaySchema(
         automationParams.length > 0 ? { fields: automationParams } : null,
@@ -1009,7 +1016,12 @@ export async function argumentsEdit(): Promise<void> {
         "Job Variables"
       );
     } else if (section === "save") {
-      if (!hasChanges) {
+      // Recompute hasChanges at save time
+      const changesDetected =
+        JSON.stringify(automationParams) !== originalParams ||
+        JSON.stringify(jobVars) !== originalVars;
+
+      if (!changesDetected) {
         logger.info("No changes to save");
         break;
       }
