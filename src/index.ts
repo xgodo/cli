@@ -9,84 +9,132 @@ import { clone } from "./commands/clone";
 import { sync } from "./commands/sync";
 import { commit } from "./commands/commit";
 import { templateList, templateApply } from "./commands/template";
+import {
+  handleCompletion,
+  installCompletions,
+  uninstallCompletions,
+} from "./lib/completions";
 
-const program = new Command();
+// Handle tab completion before anything else
+handleCompletion().then(() => {
+  // If completion was handled, the process will exit
+  // Otherwise, continue with normal CLI execution
+  runCli();
+}).catch(() => {
+  runCli();
+});
 
-program
-  .name("xgodo")
-  .description("CLI tool for Xgodo platform")
-  .version("1.0.0");
+function runCli(): void {
+  const program = new Command();
 
-// Login command
-program
-  .command("login")
-  .description("Login with your API key")
-  .option("-k, --key <key>", "API key (will prompt if not provided)")
-  .option("-u, --url <url>", "API URL (default: https://xgodobackend.omdev.in/server)")
-  .action(login);
+  program
+    .name("xgodo")
+    .description("CLI tool for Xgodo platform")
+    .version("1.1.0");
 
-// Logout command
-program
-  .command("logout")
-  .description("Logout and clear stored credentials")
-  .action(logout);
+  // Login command
+  program
+    .command("login")
+    .description("Login with your API key")
+    .option("-k, --key <key>", "API key (will prompt if not provided)")
+    .option("-u, --url <url>", "API URL (default: https://xgodobackend.omdev.in/server)")
+    .action(login);
 
-// Whoami command
-program
-  .command("whoami")
-  .description("Show current logged-in user")
-  .action(whoami);
+  // Logout command
+  program
+    .command("logout")
+    .description("Logout and clear stored credentials")
+    .action(logout);
 
-// ==================== Project commands ====================
-const projectCmd = program
-  .command("project")
-  .alias("p")
-  .description("Manage automation projects");
+  // Whoami command
+  program
+    .command("whoami")
+    .description("Show current logged-in user")
+    .action(whoami);
 
-// List projects
-projectCmd
-  .command("list")
-  .alias("ls")
-  .description("List your automation projects")
-  .action(list);
+  // ==================== Project commands ====================
+  const projectCmd = program
+    .command("project")
+    .alias("p")
+    .description("Manage automation projects");
 
-// Clone project
-projectCmd
-  .command("clone <project-id>")
-  .description("Clone an automation project to local directory")
-  .option("-p, --path <path>", "Target directory (default: ./<project-name>)")
-  .action(clone);
+  // List projects
+  projectCmd
+    .command("list")
+    .alias("ls")
+    .description("List your automation projects")
+    .action(list);
 
-// Sync project
-projectCmd
-  .command("sync")
-  .description("Sync local changes with the server")
-  .action(sync);
+  // Clone project
+  projectCmd
+    .command("clone <project-id>")
+    .description("Clone an automation project to local directory")
+    .option("-p, --path <path>", "Target directory (default: ./<project-name>)")
+    .action(clone);
 
-// Commit changes
-projectCmd
-  .command("commit")
-  .description("Commit changes to the project")
-  .option("-m, --message <message>", "Commit message")
-  .option("-f, --force", "Use default commit message")
-  .action(commit);
+  // Sync project
+  projectCmd
+    .command("sync")
+    .description("Sync local changes with the server")
+    .action(sync);
 
-// Template subcommands under project
-const templateCmd = projectCmd
-  .command("template")
-  .alias("t")
-  .description("Manage project templates");
+  // Commit changes
+  projectCmd
+    .command("commit")
+    .description("Commit changes to the project")
+    .option("-m, --message <message>", "Commit message")
+    .option("-f, --force", "Use default commit message")
+    .action(commit);
 
-templateCmd
-  .command("list")
-  .alias("ls")
-  .description("List available templates")
-  .action(templateList);
+  // Template subcommands under project
+  const templateCmd = projectCmd
+    .command("template")
+    .alias("t")
+    .description("Manage project templates");
 
-templateCmd
-  .command("apply [template-id]")
-  .description("Apply a template to the current project")
-  .action(templateApply);
+  templateCmd
+    .command("list")
+    .alias("ls")
+    .description("List available templates")
+    .action(templateList);
 
-// Parse arguments
-program.parse();
+  templateCmd
+    .command("apply [template-id]")
+    .description("Apply a template to the current project")
+    .action(templateApply);
+
+  // ==================== Completion commands ====================
+  const completionCmd = program
+    .command("completion")
+    .description("Manage shell tab completions");
+
+  completionCmd
+    .command("install")
+    .description("Install shell completions (bash, zsh, fish)")
+    .action(async () => {
+      try {
+        await installCompletions();
+        console.log("Shell completions installed successfully!");
+        console.log("Please restart your shell or run: source ~/.bashrc (or ~/.zshrc)");
+      } catch (err) {
+        console.error("Failed to install completions:", err);
+        process.exit(1);
+      }
+    });
+
+  completionCmd
+    .command("uninstall")
+    .description("Uninstall shell completions")
+    .action(async () => {
+      try {
+        await uninstallCompletions();
+        console.log("Shell completions uninstalled successfully!");
+      } catch (err) {
+        console.error("Failed to uninstall completions:", err);
+        process.exit(1);
+      }
+    });
+
+  // Parse arguments
+  program.parse();
+}
