@@ -7,6 +7,7 @@ import {
   syncFilesToServer,
   getNodeTypes,
   getBootstrapTypes,
+  getArgumentTypes,
 } from "../lib/api";
 import {
   isLoggedIn,
@@ -128,6 +129,7 @@ export async function sync(): Promise<void> {
     try {
       const nodeTypes = await getNodeTypes();
       let bootstrap: { version: number; content: string } | undefined;
+      let argumentTypes: string | undefined;
 
       try {
         bootstrap = await getBootstrapTypes();
@@ -135,7 +137,13 @@ export async function sync(): Promise<void> {
         // Bootstrap types might not be available
       }
 
-      writeTypeFiles(projectDir, nodeTypes, bootstrap);
+      try {
+        argumentTypes = await getArgumentTypes(project.id);
+      } catch {
+        // Argument types might not be available
+      }
+
+      writeTypeFiles(projectDir, nodeTypes, bootstrap, argumentTypes);
     } catch (err) {
       logger.warn("Could not update type definitions");
     }

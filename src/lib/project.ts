@@ -139,7 +139,8 @@ export function ensureTypesDir(projectDir: string): void {
 export function writeTypeFiles(
   projectDir: string,
   nodeTypes: string,
-  bootstrap?: { version: number; content: string }
+  bootstrap?: { version: number; content: string },
+  argumentTypes?: string
 ): void {
   ensureTypesDir(projectDir);
 
@@ -151,5 +152,10 @@ export function writeTypeFiles(
   // Write bootstrap.ts if available
   if (bootstrap) {
     fs.writeFileSync(path.join(typesDir, "bootstrap.ts"), bootstrap.content);
+  }
+
+  // Write arguments.ts if available
+  if (argumentTypes) {
+    fs.writeFileSync(path.join(typesDir, "arguments.ts"), argumentTypes);
   }
 }

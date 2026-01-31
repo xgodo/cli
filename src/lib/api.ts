@@ -195,6 +195,16 @@ export async function getBootstrapTypes(): Promise<{ version: number; content: s
 }
 
 /**
+ * Get argument types for a project
+ */
+export async function getArgumentTypes(projectId: string): Promise<string> {
+  const data = await apiRequest<{ content: string }>(
+    `/v2/automation-project/${projectId}/types/arguments`
+  );
+  return data.content;
+}
+
+/**
  * List templates
  */
 export async function listTemplates(): Promise<Template[]> {

@@ -7,6 +7,7 @@ import {
   getProjectFile,
   getNodeTypes,
   getBootstrapTypes,
+  getArgumentTypes,
   getApiUrl,
   listProjects,
 } from "../lib/api";
@@ -117,6 +118,7 @@ export async function clone(
     try {
       const nodeTypes = await getNodeTypes();
       let bootstrap: { version: number; content: string } | undefined;
+      let argumentTypes: string | undefined;
 
       try {
         bootstrap = await getBootstrapTypes();
@@ -124,7 +126,13 @@ export async function clone(
         // Bootstrap types might not be available
       }
 
-      writeTypeFiles(targetDir, nodeTypes, bootstrap);
+      try {
+        argumentTypes = await getArgumentTypes(selectedProjectId);
+      } catch {
+        // Argument types might not be available
+      }
+
+      writeTypeFiles(targetDir, nodeTypes, bootstrap, argumentTypes);
     } catch (err) {
       logger.warn("Could not download type definitions");
     }
