@@ -1,0 +1,53 @@
+{
+  "name": "@xgodo/cli",
+  "version": "1.0.0",
+  "description": "CLI tool for Xgodo platform",
+  "main": "dist/index.js",
+  "bin": {
+    "xgodo": "./dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xgodo/cli.git"
+  },
+  "homepage": "https://github.com/xgodo/cli#readme",
+  "bugs": {
+    "url": "https://github.com/xgodo/cli/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w",
+    "start": "node dist/index.js",
+    "link": "npm run build && npm link"
+  },
+  "keywords": [
+    "xgodo",
+    "automation",
+    "cli",
+    "developer-tools"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^12.1.0",
+    "inquirer": "^8.2.6",
+    "node-fetch": "^2.7.0",
+    "ora": "^5.4.1"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^8.2.10",
+    "@types/node": "^20.11.0",
+    "@types/node-fetch": "^2.6.11",
+    "typescript": "^5.3.3"
+  },
+  "man": [
+    "./man/xgodo.1"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

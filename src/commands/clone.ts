@@ -1,0 +1,142 @@
+import fs from "fs";
+import path from "path";
+import ora from "ora";
+import {
+  getProject,
+  getProjectFiles,
+  getProjectFile,
+  getNodeTypes,
+  getBootstrapTypes,
+  getApiUrl,
+} from "../lib/api";
+import {
+  isLoggedIn,
+  saveLocalProject,
+  saveLocalHashes,
+  updateGitignore,
+  updateTsConfig,
+} from "../lib/config";
+import {
+  normalizeProjectName,
+  writeTypeFiles,
+} from "../lib/project";
+import { LocalHashes } from "../lib/types";
+import * as logger from "../utils/logger";
+
+interface CloneOptions {
+  path?: string;
+}
+
+export async function clone(
+  projectId: string,
+  options: CloneOptions
+): Promise<void> {
+  if (!isLoggedIn()) {
+    logger.error("Not logged in. Run 'xgodo login' first.");
+    process.exit(1);
+  }
+
+  const spinner = ora("Fetching project info...").start();
+
+  try {
+    // Get project details
+    const project = await getProject(projectId);
+    spinner.text = "Fetching project files...";
+
+    // Determine target directory
+    const normalizedName = normalizeProjectName(project.name);
+    const targetDir = options.path
+      ? path.resolve(options.path)
+      : path.resolve(process.cwd(), normalizedName);
+
+    // Check if directory already exists
+    if (fs.existsSync(targetDir)) {
+      spinner.stop();
+      logger.error(`Directory already exists: ${targetDir}`);
+      process.exit(1);
+    }
+
+    // Create directory
+    fs.mkdirSync(targetDir, { recursive: true });
+
+    // Get all files
+    const files = await getProjectFiles(projectId);
+    spinner.text = `Downloading ${files.length} files...`;
+
+    // Download each file
+    const hashes: LocalHashes = {};
+    for (const file of files) {
+      try {
+        const content = await getProjectFile(projectId, file.path);
+        const filePath = path.join(targetDir, file.path);
+        const fileDir = path.dirname(filePath);
+
+        // Ensure directory exists
+        if (!fs.existsSync(fileDir)) {
+          fs.mkdirSync(fileDir, { recursive: true });
+        }
+
+        fs.writeFileSync(filePath, content);
+        hashes[file.path] = file.hash;
+      } catch (err) {
+        // Skip files that can't be downloaded (e.g., binary files)
+        logger.warn(`Skipped: ${file.path}`);
+      }
+    }
+
+    // Download type definitions
+    spinner.text = "Downloading type definitions...";
+    try {
+      const nodeTypes = await getNodeTypes();
+      let bootstrap: { version: number; content: string } | undefined;
+
+      try {
+        bootstrap = await getBootstrapTypes();
+      } catch {
+        // Bootstrap types might not be available
+      }
+
+      writeTypeFiles(targetDir, nodeTypes, bootstrap);
+    } catch (err) {
+      logger.warn("Could not download type definitions");
+    }
+
+    // Save project info
+    saveLocalProject(
+      {
+        id: projectId,
+        name: project.name,
+        apiUrl: getApiUrl(),
+        lastSync: new Date().toISOString(),
+      },
+      targetDir
+    );
+
+    // Save hashes
+    saveLocalHashes(hashes, targetDir);
+
+    // Update .gitignore
+    updateGitignore(targetDir);
+
+    // Update tsconfig.json
+    updateTsConfig(targetDir);
+
+    spinner.stop();
+
+    logger.success(`Cloned project to ${targetDir}`);
+    logger.log("");
+    logger.dim(`  Project: ${project.name}`);
+    logger.dim(`  Files: ${files.length}`);
+    logger.dim(`  Role: ${project.role}`);
+    logger.log("");
+    logger.info(`Run 'cd ${path.relative(process.cwd(), targetDir)}' to enter the project`);
+  } catch (err: unknown) {
+    spinner.stop();
+    if (err instanceof Error) {
+      logger.error(err.message);
+    } else {
+      logger.error("Failed to clone project");
+    }
+    process.exit(1);
+  }
+}

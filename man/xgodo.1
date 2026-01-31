@@ -1,0 +1,153 @@
+.TH XGODO 1 "January 2024" "xgodo 1.0.0" "User Commands"
+.SH NAME
+xgodo \- CLI tool for Xgodo platform
+.SH SYNOPSIS
+.B xgodo
+[\fIcommand\fR] [\fIsubcommand\fR] [\fIoptions\fR]
+.SH DESCRIPTION
+.B xgodo
+is a command-line tool for the Xgodo platform. It enables developers to work on
+automation projects locally using their preferred IDE, with seamless synchronization
+to the web-based editor.
+.SH COMMANDS
+.SS Authentication
+.TP
+.B login
+Login with your API key. Use \fB-k\fR to provide key directly or enter interactively.
+.TP
+.B logout
+Logout and clear stored credentials.
+.TP
+.B whoami
+Display the currently logged-in user's name and email.
+.SS Project Management (xgodo project | xgodo p)
+.TP
+.B project list\fR, \fBproject ls\fR, \fBp ls
+List all automation projects you have access to (owner or editor).
+.TP
+.B project clone \fIproject-id\fR [\fB-p\fR \fIpath\fR]
+Clone an automation project to a local directory. If no path is specified,
+creates a directory with the normalized project name.
+.TP
+.B project sync
+Synchronize local changes with the server. Uploads modified files and
+downloads type definitions.
+.TP
+.B project commit\fR [\fB-m\fR \fImessage\fR] [\fB-f\fR]
+Commit changes to the project. Use \fB-m\fR to provide a message directly,
+\fB-f\fR to use a default message, or enter interactively.
+.SS Template Management (xgodo project template | xgodo p t)
+.TP
+.B project template list\fR, \fBp t ls
+List available templates.
+.TP
+.B project template apply\fR [\fItemplate-id\fR]
+Apply a template to the current project.
+.SH OPTIONS
+.TP
+.B \-h, \-\-help
+Display help for the command.
+.TP
+.B \-V, \-\-version
+Display version number.
+.SH EXAMPLES
+.PP
+Login with API key:
+.RS
+.nf
+xgodo login
+xgodo login -k YOUR_API_KEY
+.fi
+.RE
+.PP
+List and clone a project:
+.RS
+.nf
+xgodo project list
+xgodo p ls
+xgodo project clone 507f1f77bcf86cd799439011
+xgodo p clone 507f1f77bcf86cd799439011 -p ./my-project
+.fi
+.RE
+.PP
+Sync and commit changes:
+.RS
+.nf
+xgodo project sync
+xgodo p sync
+xgodo project commit -m "Add new feature"
+xgodo p commit -f  # Use default message
+.fi
+.RE
+.PP
+Work with templates:
+.RS
+.nf
+xgodo project template list
+xgodo p t ls
+xgodo project template apply 507f1f77bcf86cd799439022
+.fi
+.RE
+.SH FILES
+.TP
+.I ~/.config/xgodo/config.json
+Stores authentication credentials and API settings.
+.TP
+.I .xgodo/project.json
+Project-specific metadata (created in each cloned project).
+.TP
+.I .xgodo/hashes.json
+File hashes for change detection.
+.TP
+.I types/node-types.ts
+Static type definitions for the automation API.
+.TP
+.I types/bootstrap.ts
+Dynamic bootstrap type definitions.
+.SH WORKFLOW
+.PP
+1. Login with your API key:
+.RS
+xgodo login
+.RE
+.PP
+2. List your projects:
+.RS
+xgodo project list
+.RE
+.PP
+3. Clone a project:
+.RS
+xgodo project clone <project-id>
+.RE
+.PP
+4. Edit files in your favorite IDE
+.PP
+5. Sync changes:
+.RS
+xgodo project sync
+.RE
+.PP
+6. Commit when ready:
+.RS
+xgodo project commit -m "Description of changes"
+.RE
+.SH SYNC BEHAVIOR
+.PP
+The sync command uses git-compatible SHA-1 hashes to detect file changes.
+Only modified files are uploaded to minimize bandwidth. TypeScript files
+are automatically compiled to JavaScript on the server.
+.PP
+Type definition files (\fInode-types.ts\fR and \fIbootstrap.ts\fR) are
+downloaded automatically and stored in the \fItypes/\fR directory.
+.SH EXIT STATUS
+.TP
+.B 0
+Success
+.TP
+.B 1
+Error occurred
+.SH AUTHOR
+Xgodo Team
+.SH SEE ALSO
+.BR npm (1)
