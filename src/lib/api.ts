@@ -9,6 +9,9 @@ import {
   Template,
   ProjectDetails,
   IInputSchema,
+  GitStatus,
+  GitCommit,
+  GitDiffFile,
 } from "./types";
 
 /**
@@ -265,4 +268,40 @@ export async function updateProjectOptions(
     automation_parameters_schema: data.automation_parameters_schema,
     job_variables_schema: data.job_variables_schema,
   };
+}
+
+/**
+ * Get git status (uncommitted changes)
+ */
+export async function getGitStatus(projectId: string): Promise<GitStatus> {
+  const data = await apiRequest<{ hasChanges: boolean; changes: GitStatus["changes"] }>(
+    `/v2/automation-project/${projectId}/git/status`
+  );
+  return { hasChanges: data.hasChanges, changes: data.changes };
+}
+
+/**
+ * Get git commit history
+ */
+export async function getGitHistory(
+  projectId: string,
+  limit: number = 50
+): Promise<GitCommit[]> {
+  const data = await apiRequest<{ commits: GitCommit[] }>(
+    `/v2/automation-project/${projectId}/git/history?limit=${limit}`
+  );
+  return data.commits;
+}
+
+/**
+ * Get diff between a commit and working directory
+ */
+export async function getGitDiffWithWorking(
+  projectId: string,
+  commitHash: string
+): Promise<{ commitHash: string; files: GitDiffFile[] }> {
+  const data = await apiRequest<{ commitHash: string; files: GitDiffFile[] }>(
+    `/v2/automation-project/${projectId}/git/diff-working/${commitHash}`
+  );
+  return { commitHash: data.commitHash, files: data.files };
 }

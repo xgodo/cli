@@ -10,6 +10,7 @@ import { sync } from "./commands/sync";
 import { commit } from "./commands/commit";
 import { templateList, templateApply } from "./commands/template";
 import { argumentsList, argumentsEdit } from "./commands/arguments";
+import { gitStatus, gitLog, gitDiff } from "./commands/git";
 import {
   handleCompletion,
   installCompletions,
@@ -33,7 +34,7 @@ function runCli(): void {
   program
     .name("xgodo")
     .description("CLI tool for Xgodo platform")
-    .version("1.2.0");
+    .version("1.3.0");
 
   // Login command
   program
@@ -88,6 +89,26 @@ function runCli(): void {
     .option("-m, --message <message>", "Commit message")
     .option("-f, --force", "Use default commit message")
     .action(commit);
+
+  // Git status
+  projectCmd
+    .command("status")
+    .description("Show uncommitted changes")
+    .action(gitStatus);
+
+  // Git log
+  projectCmd
+    .command("log")
+    .description("Show commit history")
+    .option("-n, --limit <limit>", "Number of commits to show (default: 20)")
+    .action(gitLog);
+
+  // Git diff
+  projectCmd
+    .command("diff")
+    .description("Show diff between working directory and last commit")
+    .option("-f, --file <file>", "Show diff for a specific file")
+    .action(gitDiff);
 
   // Template subcommands under project
   const templateCmd = projectCmd

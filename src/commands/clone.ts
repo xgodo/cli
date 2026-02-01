@@ -90,11 +90,31 @@ export async function clone(
 
     // Get all files
     const files = await getProjectFiles(selectedProjectId);
-    spinner.text = `Downloading ${files.length} files...`;
+
+    // Build a set of .ts file paths to skip their compiled .js counterparts
+    const tsFiles = new Set(
+      files
+        .filter((f) => f.path.endsWith(".ts"))
+        .map((f) => f.path.slice(0, -3) + ".js")
+    );
+
+    // Filter out compiled .js files (where corresponding .ts exists)
+    const filesToDownload = files.filter((f) => {
+      if (f.path.endsWith(".js") && tsFiles.has(f.path)) {
+        return false; // Skip compiled .js file
+      }
+      return true;
+    });
+
+    const skippedCount = files.length - filesToDownload.length;
+    spinner.text = `Downloading ${filesToDownload.length} files...`;
+    if (skippedCount > 0) {
+      logger.dim(`  (Skipping ${skippedCount} compiled .js files)`);
+    }
 
     // Download each file
     const hashes: LocalHashes = {};
-    for (const file of files) {
+    for (const file of filesToDownload) {
       try {
         const content = await getProjectFile(selectedProjectId, file.path);
         const filePath = path.join(targetDir, file.path);
@@ -162,7 +182,7 @@ export async function clone(
     logger.success(`Cloned project to ${targetDir}`);
     logger.log("");
     logger.dim(`  Project: ${project.name}`);
-    logger.dim(`  Files: ${files.length}`);
+    logger.dim(`  Files: ${filesToDownload.length}${skippedCount > 0 ? ` (${skippedCount} compiled .js skipped)` : ""}`);
     logger.dim(`  Role: ${project.role}`);
     logger.log("");
     logger.info(`Run 'cd ${path.relative(process.cwd(), targetDir)}' to enter the project`);

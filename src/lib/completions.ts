@@ -18,6 +18,9 @@ const COMMANDS = {
     { name: "clone", description: "Clone a project locally" },
     { name: "sync", description: "Sync changes with server" },
     { name: "commit", description: "Commit changes" },
+    { name: "status", description: "Show uncommitted changes" },
+    { name: "log", description: "Show commit history" },
+    { name: "diff", description: "Show diff with last commit" },
     { name: "template", description: "Manage templates" },
     { name: "t", description: "Manage templates (alias)" },
     { name: "arguments", description: "Manage arguments" },
@@ -55,6 +58,14 @@ const OPTIONS = {
     { name: "--message", description: "Commit message" },
     { name: "-f", description: "Use default message" },
     { name: "--force", description: "Use default message" },
+  ],
+  log: [
+    { name: "-n", description: "Number of commits" },
+    { name: "--limit", description: "Number of commits" },
+  ],
+  diff: [
+    { name: "-f", description: "Show diff for a specific file" },
+    { name: "--file", description: "Show diff for a specific file" },
   ],
 };
 
@@ -176,6 +187,24 @@ export async function handleCompletion(): Promise<boolean> {
           tabtab.log(COMMANDS.arguments);
           return true;
         }
+        return true;
+      }
+
+      // log options
+      if (second === "log") {
+        if (prev === "-n" || prev === "--limit") {
+          return true; // Don't complete values
+        }
+        tabtab.log(OPTIONS.log);
+        return true;
+      }
+
+      // diff options
+      if (second === "diff") {
+        if (prev === "-f" || prev === "--file") {
+          return true; // Let shell handle file completion
+        }
+        tabtab.log(OPTIONS.diff);
         return true;
       }
 

@@ -104,3 +104,40 @@ export interface ProjectDetails {
   is_owner: boolean;
   is_template: boolean;
 }
+
+/**
+ * Git change status
+ */
+export interface GitChange {
+  path: string;
+  status: "new" | "modified" | "deleted" | "unchanged";
+}
+
+/**
+ * Git status response
+ */
+export interface GitStatus {
+  hasChanges: boolean;
+  changes: GitChange[];
+}
+
+/**
+ * Git commit info
+ */
+export interface GitCommit {
+  hash: string;
+  message: string;
+  author: string;
+  authorEmail?: string;
+  timestamp: string;
+}
+
+/**
+ * Git diff file
+ */
+export interface GitDiffFile {
+  path: string;
+  status: "added" | "modified" | "deleted";
+  original: string;
+  modified: string;
+}
