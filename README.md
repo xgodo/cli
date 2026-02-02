@@ -141,6 +141,67 @@ Project metadata is stored in `.xgodo/` within each project directory.
 xgodo login -u https://your-server.com/server
 ```
 
+## MCP Server
+
+Xgodo provides an MCP (Model Context Protocol) server that enables AI assistants like Claude to manage your automation projects and control Android devices using natural language.
+
+### Adding to Claude Code
+
+```bash
+claude mcp add xgodo-dev https://xgodo.com/server/api/v2/mcp --transport http-stream
+```
+
+When prompted for headers, add your API key:
+
+```
+Authorization: Bearer YOUR_API_KEY
+```
+
+You can get your API key from the Xgodo dashboard.
+
+### Adding to Claude Desktop
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
+
+```json
+{
+  "mcpServers": {
+    "xgodo-dev": {
+      "url": "https://xgodo.com/server/api/v2/mcp",
+      "transport": "http-stream",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
+    }
+  }
+}
+```
+
+### Available Tools
+
+Once connected, Claude can:
+
+**Project Management**
+- List, read, and write project files
+- Sync changes and commit with messages
+- View project status, history, and diffs
+- Apply templates
+
+**Device Control**
+- List and select your Android devices
+- Take screenshots and get UI hierarchy
+- Tap, swipe, type text, and press keys
+- Launch apps and navigate
+
+### Example Usage
+
+Ask Claude:
+
+- "List my Xgodo projects"
+- "Show me the main.ts file in my automation project"
+- "Search for 'latest news' on Chrome on my Extra Moose device"
+- "Take a screenshot of my device"
+
 ## License
 
 MIT
