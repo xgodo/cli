@@ -148,16 +148,10 @@ Xgodo provides an MCP (Model Context Protocol) server that enables AI assistants
 ### Adding to Claude Code
 
 ```bash
-claude mcp add xgodo-dev https://xgodo.com/server/api/v2/mcp --transport http-stream
+claude mcp add --transport http --header "Authorization: Bearer YOUR_API_KEY" xgodo-dev https://xgodo.com/server/api/v2/mcp
 ```
 
-When prompted for headers, add your API key:
-
-```
-Authorization: Bearer YOUR_API_KEY
-```
-
-You can get your API key from the Xgodo dashboard.
+Replace `YOUR_API_KEY` with your API key from the Xgodo dashboard.
 
 ### Adding to Claude Desktop
 
@@ -168,7 +162,7 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
   "mcpServers": {
     "xgodo-dev": {
       "url": "https://xgodo.com/server/api/v2/mcp",
-      "transport": "http-stream",
+      "transport": "http",
       "headers": {
         "Authorization": "Bearer YOUR_API_KEY"
       }
