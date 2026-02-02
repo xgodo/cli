@@ -1,4 +1,5 @@
 import ora from "ora";
+import Sentry from "@sentry/node";
 import { validateApiKey } from "../lib/api";
 import { saveConfig } from "../lib/config";
 import { DEFAULT_API_URL } from "../lib/constants";
@@ -35,6 +36,7 @@ export async function login(options: LoginOptions): Promise<void> {
       logger.success(`Logged in as ${user.name} <${user.email}>`);
     } catch (err: unknown) {
       spinner.stop();
+      Sentry.captureException(err);
       if (err instanceof Error) {
         logger.error(err.message);
       } else {
@@ -43,6 +45,7 @@ export async function login(options: LoginOptions): Promise<void> {
       process.exit(1);
     }
   } catch (err: unknown) {
+    Sentry.captureException(err);
     if (err instanceof Error) {
       logger.error(err.message);
     } else {

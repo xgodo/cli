@@ -4,7 +4,16 @@
       "Bash(npm run build:*)",
       "Bash(git commit:*)",
       "Bash(git push)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "mcp__xgodo-dev__xgodo_device_list",
+      "mcp__xgodo-dev__xgodo_device_set",
+      "mcp__xgodo-dev__xgodo_device_launch_app",
+      "mcp__xgodo-dev__xgodo_device_screenshot",
+      "mcp__xgodo-dev__xgodo_device_screen_content",
+      "mcp__xgodo-dev__xgodo_device_tap",
+      "mcp__xgodo-dev__xgodo_device_type_text",
+      "mcp__xgodo-dev__xgodo_device_input_key",
+      "mcp__xgodo-dev"
     ]
   }
 }

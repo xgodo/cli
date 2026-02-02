@@ -1,4 +1,5 @@
 import ora from "ora";
+import Sentry from "@sentry/node";
 import { listTemplates, applyTemplate } from "../lib/api";
 import {
   isLoggedIn,
@@ -42,6 +43,7 @@ export async function templateList(): Promise<void> {
     logger.dim(`Total: ${templates.length} templates`);
   } catch (err: unknown) {
     spinner.stop();
+    Sentry.captureException(err);
     if (err instanceof Error) {
       logger.error(err.message);
     } else {
@@ -87,6 +89,7 @@ export async function templateApply(templateId?: string): Promise<void> {
       selectedTemplateId = await promptSelectTemplate(templates);
     } catch (err: unknown) {
       spinner.stop();
+      Sentry.captureException(err);
       if (err instanceof Error) {
         logger.error(err.message);
       } else {
@@ -120,6 +123,7 @@ export async function templateApply(templateId?: string): Promise<void> {
     logger.info("Run 'xgodo sync' to download the updated files");
   } catch (err: unknown) {
     spinner.stop();
+    Sentry.captureException(err);
     if (err instanceof Error) {
       logger.error(err.message);
     } else {

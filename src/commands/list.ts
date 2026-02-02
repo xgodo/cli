@@ -1,4 +1,5 @@
 import ora from "ora";
+import Sentry from "@sentry/node";
 import { listProjects } from "../lib/api";
 import { isLoggedIn } from "../lib/config";
 import * as logger from "../utils/logger";
@@ -33,6 +34,7 @@ export async function list(): Promise<void> {
     logger.dim(`Total: ${projects.length} projects`);
   } catch (err: unknown) {
     spinner.stop();
+    Sentry.captureException(err);
     if (err instanceof Error) {
       logger.error(err.message);
     } else {

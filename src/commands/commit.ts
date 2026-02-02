@@ -1,4 +1,5 @@
 import ora from "ora";
+import Sentry from "@sentry/node";
 import { commitChanges, getProjectFiles, syncFilesToServer } from "../lib/api";
 import {
   isLoggedIn,
@@ -114,8 +115,10 @@ export async function commit(options: CommitOptions): Promise<void> {
         logger.info("No changes to commit");
         return;
       }
+      Sentry.captureException(err);
       logger.error(err.message);
     } else {
+      Sentry.captureException(err);
       logger.error("Failed to commit");
     }
     process.exit(1);

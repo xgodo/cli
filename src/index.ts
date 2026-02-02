@@ -17,6 +17,17 @@ import {
   uninstallCompletions,
 } from "./lib/completions";
 
+import Sentry from "@sentry/node";
+
+Sentry.init({
+  dsn: "https://079e6195edecc8466623a4b72434851c@o4510817486700544.ingest.us.sentry.io/4510817490370560",
+  // Setting this option to true will send default PII data to Sentry.
+  // For example, automatic IP address collection on events
+  sendDefaultPii: true,
+});
+
+require("./instrument.js");
+
 // Handle tab completion first (tabtab checks env vars)
 handleCompletion()
   .then((handled) => {
@@ -24,7 +35,8 @@ handleCompletion()
       runCli();
     }
   })
-  .catch(() => {
+  .catch((e) => {
+    Sentry.captureException(e);
     runCli();
   });
 
@@ -156,6 +168,7 @@ function runCli(): void {
       try {
         await installCompletions();
       } catch (err: any) {
+        Sentry.captureException(err);
         console.error("Failed to install completions:", err.message);
         process.exit(1);
       }
@@ -168,6 +181,7 @@ function runCli(): void {
       try {
         await uninstallCompletions();
       } catch (err: any) {
+        Sentry.captureException(err);
         console.error("Failed to uninstall completions:", err.message);
         process.exit(1);
       }

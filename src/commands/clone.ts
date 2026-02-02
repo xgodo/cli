@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import ora from "ora";
+import Sentry from "@sentry/node";
 import {
   getProject,
   getProjectFiles,
@@ -56,6 +57,7 @@ export async function clone(
       selectedProjectId = await promptSelectProject(projects);
     } catch (err: unknown) {
       spinner.stop();
+      Sentry.captureException(err);
       if (err instanceof Error) {
         logger.error(err.message);
       } else {
@@ -188,6 +190,7 @@ export async function clone(
     logger.info(`Run 'cd ${path.relative(process.cwd(), targetDir)}' to enter the project`);
   } catch (err: unknown) {
     spinner.stop();
+    Sentry.captureException(err);
     if (err instanceof Error) {
       logger.error(err.message);
     } else {

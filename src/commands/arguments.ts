@@ -1,5 +1,6 @@
 import ora from "ora";
 import inquirer from "inquirer";
+import Sentry from "@sentry/node";
 import { getProjectDetails, updateProjectOptions, listProjects } from "../lib/api";
 import {
   isLoggedIn,
@@ -156,6 +157,7 @@ export async function argumentsList(): Promise<void> {
       projectId = await promptSelectProject(projects);
     } catch (err: unknown) {
       spinner.stop();
+      Sentry.captureException(err);
       if (err instanceof Error) {
         logger.error(err.message);
       } else {
@@ -179,6 +181,7 @@ export async function argumentsList(): Promise<void> {
 
   } catch (err: unknown) {
     spinner.stop();
+    Sentry.captureException(err);
     if (err instanceof Error) {
       logger.error(err.message);
     } else {
@@ -940,6 +943,7 @@ export async function argumentsEdit(): Promise<void> {
       projectId = await promptSelectProject(projects);
     } catch (err: unknown) {
       spinner.stop();
+      Sentry.captureException(err);
       if (err instanceof Error) {
         logger.error(err.message);
       } else {
@@ -957,6 +961,7 @@ export async function argumentsEdit(): Promise<void> {
     spinner.stop();
   } catch (err: unknown) {
     spinner.stop();
+    Sentry.captureException(err);
     if (err instanceof Error) {
       logger.error(err.message);
     } else {
@@ -1039,6 +1044,7 @@ export async function argumentsEdit(): Promise<void> {
         logger.info("\nRun 'xgodo project sync' to update local type definitions");
       } catch (err: unknown) {
         saveSpinner.stop();
+        Sentry.captureException(err);
         if (err instanceof Error) {
           logger.error(err.message);
         } else {

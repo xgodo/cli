@@ -3,6 +3,7 @@ import ora from "ora";
 import fs from "fs";
 import path from "path";
 import * as Diff from "diff";
+import Sentry from "@sentry/node";
 import { getGitStatus, getGitHistory, getGitDiffWithWorking } from "../lib/api";
 import { getLocalProject, isLoggedIn, isProjectDir } from "../lib/config";
 import { GitChange, GitDiffFile } from "../lib/types";
@@ -207,6 +208,7 @@ export async function gitStatus(): Promise<void> {
     console.log(chalk.gray("Use 'xgodo project commit' to commit changes"));
   } catch (err: any) {
     spinner.fail("Failed to get status");
+    Sentry.captureException(err);
     console.error(chalk.red(err.message));
     process.exit(1);
   }
@@ -265,6 +267,7 @@ export async function gitLog(options: { limit?: string }): Promise<void> {
     }
   } catch (err: any) {
     spinner.fail("Failed to get commit history");
+    Sentry.captureException(err);
     console.error(chalk.red(err.message));
     process.exit(1);
   }
@@ -337,6 +340,7 @@ export async function gitDiff(options: { file?: string }): Promise<void> {
     console.log(chalk.gray(`${filesToShow.length} file${filesToShow.length === 1 ? "" : "s"} changed`));
   } catch (err: any) {
     spinner.fail("Failed to get diff");
+    Sentry.captureException(err);
     console.error(chalk.red(err.message));
     process.exit(1);
   }

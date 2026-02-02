@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import ora from "ora";
+import Sentry from "@sentry/node";
 import {
   getProjectFiles,
   getProjectFile,
@@ -217,6 +218,7 @@ export async function sync(): Promise<void> {
     logger.success("Sync complete");
   } catch (err: unknown) {
     spinner.stop();
+    Sentry.captureException(err);
     if (err instanceof Error) {
       logger.error(err.message);
     } else {
