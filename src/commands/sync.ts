@@ -26,6 +26,64 @@ import {
 } from "../lib/project";
 import * as logger from "../utils/logger";
 
+/**
+ * Auto-sync: silently upload local changes to the server before running other commands.
+ * This ensures the server has the latest local changes.
+ * Returns true if sync was successful, false otherwise.
+ */
+export async function autoSync(): Promise<boolean> {
+  if (!isLoggedIn() || !isProjectDir()) {
+    return false;
+  }
+
+  const project = getLocalProject();
+  if (!project) {
+    return false;
+  }
+
+  const projectDir = process.cwd();
+
+  try {
+    // Get server files with hashes
+    const serverFiles = await getProjectFiles(project.id);
+
+    // Compute local hashes
+    const localHashes = computeLocalHashes(projectDir);
+
+    // Find changed files
+    const changes = findChangedFiles(localHashes, serverFiles);
+
+    // Only upload local changes (don't download)
+    if (changes.upload.length > 0) {
+      const filesToUpload = changes.upload.map((filePath) => {
+        const fullPath = path.join(projectDir, filePath);
+        const content = fs.readFileSync(fullPath);
+        return {
+          path: filePath,
+          content: content.toString("base64"),
+        };
+      });
+
+      const results = await syncFilesToServer(project.id, filesToUpload);
+
+      // Update local hashes with server response
+      for (const result of results) {
+        localHashes[result.path] = result.hash;
+      }
+
+      // Save hashes
+      saveLocalHashes(localHashes);
+
+      logger.dim(`Auto-synced ${changes.upload.length} file${changes.upload.length === 1 ? "" : "s"}`);
+    }
+
+    return true;
+  } catch {
+    // Silently fail - the main command will handle errors
+    return false;
+  }
+}
+
 export async function sync(): Promise<void> {
   if (!isLoggedIn()) {
     logger.error("Not logged in. Run 'xgodo login' first.");

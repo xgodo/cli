@@ -10,6 +10,7 @@ import { DEFAULT_COMMIT_MESSAGE } from "../lib/constants";
 import { computeLocalHashes, findChangedFiles } from "../lib/project";
 import * as logger from "../utils/logger";
 import { promptCommitMessage } from "../utils/prompts";
+import { autoSync } from "./sync";
 import fs from "fs";
 import path from "path";
 
@@ -28,6 +29,9 @@ export async function commit(options: CommitOptions): Promise<void> {
     logger.error("Not in a project directory. Run 'xgodo clone' first.");
     process.exit(1);
   }
+
+  // Auto-sync before commit
+  await autoSync();
 
   const project = getLocalProject()!;
   const projectDir = process.cwd();

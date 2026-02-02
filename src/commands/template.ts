@@ -7,6 +7,7 @@ import {
 } from "../lib/config";
 import * as logger from "../utils/logger";
 import { promptSelectTemplate, promptConfirm } from "../utils/prompts";
+import { autoSync } from "./sync";
 
 /**
  * List available templates
@@ -63,6 +64,9 @@ export async function templateApply(templateId?: string): Promise<void> {
     logger.error("Not in a project directory. Run 'xgodo clone' first.");
     process.exit(1);
   }
+
+  // Auto-sync before applying template
+  await autoSync();
 
   const project = getLocalProject()!;
 

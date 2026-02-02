@@ -4,8 +4,9 @@ import fs from "fs";
 import path from "path";
 import * as Diff from "diff";
 import { getGitStatus, getGitHistory, getGitDiffWithWorking } from "../lib/api";
-import { getLocalProject } from "../lib/config";
+import { getLocalProject, isLoggedIn, isProjectDir } from "../lib/config";
 import { GitChange, GitDiffFile } from "../lib/types";
+import { autoSync } from "./sync";
 
 /**
  * Format a status badge for a file change
@@ -137,11 +138,19 @@ function filterCompiledJsDiffFiles(files: GitDiffFile[], projectDir: string = pr
  * xgodo project status - Show uncommitted changes
  */
 export async function gitStatus(): Promise<void> {
+  if (!isLoggedIn()) {
+    console.error(chalk.red("Not logged in. Run 'xgodo login' first."));
+    process.exit(1);
+  }
+
   const project = getLocalProject();
   if (!project) {
     console.error(chalk.red("Not in a project directory. Run this from a cloned project folder."));
     process.exit(1);
   }
+
+  // Auto-sync before checking status
+  await autoSync();
 
   const spinner = ora("Checking status...").start();
 
@@ -265,11 +274,19 @@ export async function gitLog(options: { limit?: string }): Promise<void> {
  * xgodo project diff - Show diff between working directory and last commit
  */
 export async function gitDiff(options: { file?: string }): Promise<void> {
+  if (!isLoggedIn()) {
+    console.error(chalk.red("Not logged in. Run 'xgodo login' first."));
+    process.exit(1);
+  }
+
   const project = getLocalProject();
   if (!project) {
     console.error(chalk.red("Not in a project directory. Run this from a cloned project folder."));
     process.exit(1);
   }
+
+  // Auto-sync before fetching diff
+  await autoSync();
 
   const spinner = ora("Fetching changes...").start();
 
