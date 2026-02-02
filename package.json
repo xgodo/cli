@@ -18,10 +18,11 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run sentry:sourcemaps",
     "dev": "tsc -w",
     "start": "node dist/index.js",
-    "link": "npm run build && npm link"
+    "link": "npm run build && npm link",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org xgodo --project node ./dist && sentry-cli sourcemaps upload --org xgodo --project node ./dist"
   },
   "keywords": [
     "xgodo",
@@ -32,6 +33,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@sentry/cli": "^2.58.4",
     "@sentry/node": "^10.38.0",
     "chalk": "^4.1.2",
     "commander": "^12.1.0",
