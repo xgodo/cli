@@ -1,4 +1,5 @@
 import tabtab from "tabtab";
+import Sentry from "@sentry/node";
 import { isLoggedIn } from "./config";
 import { listProjects, listTemplates } from "./api";
 
@@ -80,7 +81,8 @@ async function getProjectCompletions(): Promise<{ name: string; description: str
       name: p.id,
       description: `${p.name} (${p.role})`,
     }));
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return [];
   }
 }
@@ -96,7 +98,8 @@ async function getTemplateCompletions(): Promise<{ name: string; description: st
       name: t.id,
       description: `${t.name} (by ${t.owner_username})`,
     }));
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return [];
   }
 }
@@ -223,6 +226,7 @@ export async function handleCompletion(): Promise<boolean> {
     return true;
   } catch (err) {
     // Fail silently for completions
+    Sentry.captureException(err);
     return true;
   }
 }

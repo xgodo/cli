@@ -131,6 +131,7 @@ export async function clone(
         hashes[file.path] = file.hash;
       } catch (err) {
         // Skip files that can't be downloaded (e.g., binary files)
+        Sentry.captureException(err);
         logger.warn(`Skipped: ${file.path}`);
       }
     }
@@ -156,6 +157,7 @@ export async function clone(
 
       writeTypeFiles(targetDir, nodeTypes, bootstrap, argumentTypes);
     } catch (err) {
+      Sentry.captureException(err);
       logger.warn("Could not download type definitions");
     }
 

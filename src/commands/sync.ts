@@ -79,8 +79,9 @@ export async function autoSync(): Promise<boolean> {
     }
 
     return true;
-  } catch {
+  } catch (err) {
     // Silently fail - the main command will handle errors
+    Sentry.captureException(err);
     return false;
   }
 }
@@ -173,6 +174,7 @@ export async function sync(): Promise<void> {
             localHashes[filePath] = serverFile.hash;
           }
         } catch (err) {
+          Sentry.captureException(err);
           logger.warn(`Could not download: ${filePath}`);
         }
       }
@@ -204,6 +206,7 @@ export async function sync(): Promise<void> {
 
       writeTypeFiles(projectDir, nodeTypes, bootstrap, argumentTypes);
     } catch (err) {
+      Sentry.captureException(err);
       logger.warn("Could not update type definitions");
     }
 
