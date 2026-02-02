@@ -19,7 +19,7 @@ import {
 
 import Sentry from "@sentry/node";
 
-require("./instrument.js");
+import "./instrument";
 
 // Handle tab completion first (tabtab checks env vars)
 handleCompletion()
@@ -46,7 +46,10 @@ function runCli(): void {
     .command("login")
     .description("Login with your API key")
     .option("-k, --key <key>", "API key (will prompt if not provided)")
-    .option("-u, --url <url>", "API URL (default: https://xgodobackend.omdev.in/server)")
+    .option(
+      "-u, --url <url>",
+      "API URL (default: https://xgodobackend.omdev.in/server)",
+    )
     .action(login);
 
   // Logout command

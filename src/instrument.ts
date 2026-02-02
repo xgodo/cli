@@ -1,5 +1,5 @@
 // Import with `import * as Sentry from "@sentry/node"` if you are using ESM
-const Sentry = require("@sentry/node");
+import Sentry from "@sentry/node";
 
 Sentry.init({
   dsn: "https://079e6195edecc8466623a4b72434851c@o4510817486700544.ingest.us.sentry.io/4510817490370560",
