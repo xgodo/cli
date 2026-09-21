@@ -30,9 +30,14 @@ Clone an automation project to a local directory. If no project ID is specified,
 shows an interactive selection prompt. If no path is specified, creates a
 directory with the normalized project name.
 .TP
-.B project sync
-Synchronize local changes with the server. Uploads modified files and
-downloads type definitions.
+.B project push
+Push local changes to the server's working directory. Uploads modified files
+without downloading anything.
+.TP
+.B project pull
+Pull working directory changes from the server, overwriting local files.
+Compiled \fI.js\fR files are skipped when a corresponding \fI.ts\fR file
+exists. Also downloads type definitions.
 .TP
 .B project commit\fR [\fB-m\fR \fImessage\fR] [\fB-f\fR]
 Commit changes to the project. Use \fB-m\fR to provide a message directly,
@@ -91,11 +96,11 @@ xgodo p clone 507f1f77bcf86cd799439011 -p ./my-project
 .fi
 .RE
 .PP
-Sync and commit changes:
+Push, pull, and commit changes:
 .RS
 .nf
-xgodo project sync
-xgodo p sync
+xgodo project push
+xgodo project pull
 xgodo project commit -m "Add new feature"
 xgodo p commit -f  # Use default message
 .fi
@@ -159,23 +164,23 @@ xgodo project clone <project-id>
 .PP
 4. Edit files in your favorite IDE
 .PP
-5. Sync changes:
+5. Push changes:
 .RS
-xgodo project sync
+xgodo project push
 .RE
 .PP
 6. Commit when ready:
 .RS
 xgodo project commit -m "Description of changes"
 .RE
-.SH SYNC BEHAVIOR
+.SH PUSH AND PULL BEHAVIOR
 .PP
-The sync command uses git-compatible SHA-1 hashes to detect file changes.
-Only modified files are uploaded to minimize bandwidth. TypeScript files
-are automatically compiled to JavaScript on the server.
+The push and pull commands use git-compatible SHA-1 hashes to detect file
+changes. Only modified files are transferred to minimize bandwidth.
+TypeScript files are automatically compiled to JavaScript on the server.
 .PP
 Type definition files (\fInode-types.ts\fR and \fIbootstrap.ts\fR) are
-downloaded automatically and stored in the \fItypes/\fR directory.
+downloaded on pull and stored in the \fItypes/\fR directory.
 .SH EXIT STATUS
 .TP
 .B 0

@@ -11,7 +11,7 @@ import { DEFAULT_COMMIT_MESSAGE } from "../lib/constants";
 import { computeLocalHashes, findChangedFiles } from "../lib/project";
 import * as logger from "../utils/logger";
 import { promptCommitMessage } from "../utils/prompts";
-import { autoSync } from "./sync";
+import { autoPush } from "./push";
 import fs from "fs";
 import path from "path";
 
@@ -31,8 +31,8 @@ export async function commit(options: CommitOptions): Promise<void> {
     process.exit(1);
   }
 
-  // Auto-sync before commit
-  await autoSync();
+  // Auto-push before commit
+  await autoPush();
 
   const project = getLocalProject()!;
   const projectDir = process.cwd();

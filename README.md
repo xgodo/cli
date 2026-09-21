@@ -22,8 +22,8 @@ xgodo project list
 # Clone a project
 xgodo project clone
 
-# Make changes to your code, then sync
-xgodo project sync
+# Make changes to your code, then push
+xgodo project push
 
 # Commit your changes
 xgodo project commit -m "Add new automation"
@@ -49,10 +49,11 @@ xgodo project clone <id>     # Clone a specific project
 xgodo project clone -p ./dir # Clone to a specific directory
 ```
 
-### Sync & Commit
+### Push, Pull & Commit
 
 ```bash
-xgodo project sync           # Sync local changes with server
+xgodo project push           # Push local changes to server's working directory
+xgodo project pull           # Pull working directory changes from server (overwrites local files)
 xgodo project commit         # Commit changes (prompts for message)
 xgodo project commit -m "message"  # Commit with message
 xgodo project commit -f      # Commit with default message
@@ -92,24 +93,6 @@ xgodo completion install     # Install shell completions (bash, zsh, fish)
 xgodo completion uninstall   # Remove shell completions
 ```
 
-## Project Structure
-
-When you clone a project, the CLI creates:
-
-```
-my-project/
-├── .xgodo/           # Project metadata (gitignored)
-│   ├── project.json  # Project info
-│   └── hashes.json   # File sync state
-├── types/            # TypeScript definitions (gitignored)
-│   ├── node-types.ts
-│   ├── bootstrap.ts
-│   └── arguments.ts
-├── main.ts           # Your automation code
-├── tsconfig.json     # TypeScript config
-└── .gitignore
-```
-
 ## TypeScript Support
 
 The CLI automatically downloads type definitions for your project:
@@ -118,28 +101,18 @@ The CLI automatically downloads type definitions for your project:
 - **bootstrap.ts** - Bootstrap utilities and helpers
 - **arguments.ts** - Your project's parameter and variable types
 
-These are regenerated on each sync to stay up to date.
+These are regenerated on each pull to stay up to date.
 
 ## Workflow
 
 1. **Clone** your project from the server
 2. **Edit** TypeScript files in your favorite editor
-3. **Sync** uploads your changes and compiles them on the server
+3. **Push** uploads your changes and compiles them on the server
 4. **Commit** creates a versioned snapshot
 
-The CLI automatically syncs before `status`, `diff`, `commit`, and `template apply` commands.
+Use **pull** to retrieve the server's working directory changes (e.g. edits made in the web editor). Compiled `.js` files are skipped when a corresponding `.ts` file exists.
 
-## Configuration
-
-Credentials are stored in `~/.config/xgodo/config.json`.
-
-Project metadata is stored in `.xgodo/` within each project directory.
-
-### Custom API URL
-
-```bash
-xgodo login -u https://your-server.com/server
-```
+The CLI automatically pushes local changes before `status`, `diff`, `commit`, and `template apply` commands.
 
 ## MCP Server
 
@@ -175,17 +148,30 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 Once connected, Claude can:
 
-**Project Management**
-- List, read, and write project files
-- Sync changes and commit with messages
-- View project status, history, and diffs
-- Apply templates
+**Project Management (via MCP)**
 
-**Device Control**
+- List projects and set current context
+- Read and write project files
+- Apply templates
+- Manage automation parameters
+
+**Device Control (via MCP)**
+
 - List and select your Android devices
 - Take screenshots and get UI hierarchy
 - Tap, swipe, type text, and press keys
 - Launch apps and navigate
+
+**Local CLI Required**
+
+The following operations require the local Xgodo CLI (install with `npm install -g @xgodo/cli`):
+
+- `xgodo project push` - Push local changes to server
+- `xgodo project pull` - Pull changes from server
+- `xgodo project commit` - Commit changes
+- `xgodo project status` - View uncommitted changes
+- `xgodo project log` - View commit history
+- `xgodo project diff` - View diff from last commit
 
 ### Example Usage
 

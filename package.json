@@ -3,6 +3,10 @@
   "version": "1.4.5",
   "description": "CLI tool for Xgodo platform",
   "main": "dist/index.js",
+  "files": [
+    "dist",
+    "man"
+  ],
   "bin": {
     "xgodo": "./dist/index.js"
   },

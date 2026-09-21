@@ -143,7 +143,6 @@ export function updateGitignore(cwd: string = process.cwd()): void {
     "# Xgodo CLI",
     ".xgodo/",
     "types/",
-    "*.js",
     "",
   ];
 

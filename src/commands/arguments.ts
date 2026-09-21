@@ -1040,8 +1040,8 @@ export async function argumentsEdit(): Promise<void> {
         saveSpinner.stop();
         logger.success("Changes saved successfully");
 
-        // Hint about syncing to get updated types
-        logger.info("\nRun 'xgodo project sync' to update local type definitions");
+        // Hint about pulling to get updated types
+        logger.info("\nRun 'xgodo project pull' to update local type definitions");
       } catch (err: unknown) {
         saveSpinner.stop();
         Sentry.captureException(err);

@@ -7,7 +7,7 @@ import Sentry from "@sentry/node";
 import { getGitStatus, getGitHistory, getGitDiffWithWorking } from "../lib/api";
 import { getLocalProject, isLoggedIn, isProjectDir } from "../lib/config";
 import { GitChange, GitDiffFile } from "../lib/types";
-import { autoSync } from "./sync";
+import { autoPush } from "./push";
 
 /**
  * Format a status badge for a file change
@@ -150,8 +150,8 @@ export async function gitStatus(): Promise<void> {
     process.exit(1);
   }
 
-  // Auto-sync before checking status
-  await autoSync();
+  // Auto-push before checking status
+  await autoPush();
 
   const spinner = ora("Checking status...").start();
 
@@ -204,7 +204,7 @@ export async function gitStatus(): Promise<void> {
         `${total} file${total === 1 ? "" : "s"} changed (${newFiles.length} new, ${modifiedFiles.length} modified, ${deletedFiles.length} deleted)`
       )
     );
-    console.log(chalk.gray("\nUse 'xgodo project sync' to upload changes"));
+    console.log(chalk.gray("\nUse 'xgodo project push' to upload changes"));
     console.log(chalk.gray("Use 'xgodo project commit' to commit changes"));
   } catch (err: any) {
     spinner.fail("Failed to get status");
@@ -288,8 +288,8 @@ export async function gitDiff(options: { file?: string }): Promise<void> {
     process.exit(1);
   }
 
-  // Auto-sync before fetching diff
-  await autoSync();
+  // Auto-push before fetching diff
+  await autoPush();
 
   const spinner = ora("Fetching changes...").start();
 

@@ -8,7 +8,7 @@ import {
 } from "../lib/config";
 import * as logger from "../utils/logger";
 import { promptSelectTemplate, promptConfirm } from "../utils/prompts";
-import { autoSync } from "./sync";
+import { autoPush } from "./push";
 
 /**
  * List available templates
@@ -67,8 +67,8 @@ export async function templateApply(templateId?: string): Promise<void> {
     process.exit(1);
   }
 
-  // Auto-sync before applying template
-  await autoSync();
+  // Auto-push before applying template
+  await autoPush();
 
   const project = getLocalProject()!;
 
@@ -120,7 +120,7 @@ export async function templateApply(templateId?: string): Promise<void> {
     }
 
     logger.log("");
-    logger.info("Run 'xgodo sync' to download the updated files");
+    logger.info("Run 'xgodo project pull' to download the updated files");
   } catch (err: unknown) {
     spinner.stop();
     Sentry.captureException(err);

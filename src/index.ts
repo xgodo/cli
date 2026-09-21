@@ -6,7 +6,8 @@ import { logout } from "./commands/logout";
 import { whoami } from "./commands/whoami";
 import { list } from "./commands/list";
 import { clone } from "./commands/clone";
-import { sync } from "./commands/sync";
+import { push } from "./commands/push";
+import { pull } from "./commands/pull";
 import { commit } from "./commands/commit";
 import { templateList, templateApply } from "./commands/template";
 import { argumentsList, argumentsEdit } from "./commands/arguments";
@@ -20,6 +21,9 @@ import {
 import Sentry from "@sentry/node";
 
 import "./instrument";
+
+// Resolved from dist/index.js at runtime
+const { version } = require("../package.json");
 
 // Handle tab completion first (tabtab checks env vars)
 handleCompletion()
@@ -39,7 +43,7 @@ function runCli(): void {
   program
     .name("xgodo")
     .description("CLI tool for Xgodo platform")
-    .version("1.3.0");
+    .version(version);
 
   // Login command
   program
@@ -48,7 +52,7 @@ function runCli(): void {
     .option("-k, --key <key>", "API key (will prompt if not provided)")
     .option(
       "-u, --url <url>",
-      "API URL (default: https://xgodobackend.omdev.in/server)",
+      "API URL (default: https://xgodo.com/server)",
     )
     .action(login);
 
@@ -84,11 +88,17 @@ function runCli(): void {
     .option("-p, --path <path>", "Target directory (default: ./<project-name>)")
     .action(clone);
 
-  // Sync project
+  // Push changes
   projectCmd
-    .command("sync")
-    .description("Sync local changes with the server")
-    .action(sync);
+    .command("push")
+    .description("Push local changes to the server's working directory")
+    .action(push);
+
+  // Pull changes
+  projectCmd
+    .command("pull")
+    .description("Pull working directory changes from the server")
+    .action(pull);
 
   // Commit changes
   projectCmd
